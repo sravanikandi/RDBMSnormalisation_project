@@ -336,109 +336,95 @@ def is_superkey(relation, determinant):
     unique_count = count_df['count'] == 1
     return unique_count.all()  # Return True if all counts are 1, indicating a superkey
 def validate_5NF(relations):
-    candidate_keys_dict = {}  # Dictionary to store candidate keys for each relation
-
-    # Iterate over each relation to get candidate keys from user input
+    candidate_keys_dict = {}
     for relation_name, relation in relations.items():
-        print(relation)  # Display the current relation for user reference
-        user_input = input("Enter the candidate keys for above relation (e.g., (A, B), (C, D)): ")
+        print(relation)
+        user_input = input(
+            "Enter the candidate keys for above relation (e.g., (A, B), (C, D)): ")
         print('\n')
-        
-        # Extract candidate keys from the user input using regex
         tuples = re.findall(r'\((.*?)\)', user_input)
         candidate_keys = [tuple(map(str.strip, t.split(','))) for t in tuples]
-        candidate_keys_dict[relation_name] = candidate_keys  # Store the candidate keys
+        candidate_keys_dict[relation_name] = candidate_keys
 
-    print(f'Candidate Keys for tables:')  # Print all candidate keys collected
+    print(f'Candidate Keys for tables:')
     print(candidate_keys_dict)
     print('\n')
 
-    # Validate each relation against 5NF conditions
     for relation_name, relation in relations.items():
-        candidate_keys = candidate_keys_dict[relation_name]  # Get candidate keys for the current relation
+        candidate_keys = candidate_keys_dict[relation_name]
 
-        # Convert relation data to a list of tuples for easy processing
         data_tuples = [tuple(row) for row in relation.to_numpy()]
 
-        # Function to project data based on specified attributes
         def project(data, attributes):
             return {tuple(row[attr] for attr in attributes) for row in data}
 
-        # Function to check if the attributes form a superkey
         def superkey(attributes):
             for key in candidate_keys:
-                if set(key).issubset(attributes):  # Check if the key is a subset of attributes
+                if set(key).issubset(attributes):
                     return True
-            return False  # Return False if no superkey is found
+            return False, candidate_keys_dict
 
-        # Iterate over all combinations of attributes in the relation
         for i in range(1, len(relation.columns)):
             for attrs in combinations(relation.columns, i):
-                if superkey(attrs):  # Skip combinations that are superkeys
+                if superkey(attrs):
                     continue
 
-                # Project the data for the selected attributes and their complement
                 projected_data = project(data_tuples, attrs)
-                complement_attrs = set(relation.columns) - set(attrs)  # Attributes not included in the projection
-                complement_data = project(data_tuples, complement_attrs)  # Project the complement attributes
+                complement_attrs = set(relation.columns) - set(attrs)
+                complement_data = project(data_tuples, complement_attrs)
 
-                # Create a join of the projected data and complement data
-                joined_data = {(row1 + row2) for row1 in projected_data for row2 in complement_data}
-                # Check if the original data matches the joined data
+                joined_data = {(row1 + row2)
+                               for row1 in projected_data for row2 in complement_data}
                 if set(data_tuples) != joined_data:
-                    print("Failed 5NF check for attributes:", attrs)  # Print failing attributes
-                    return False, candidate_keys_dict  # Return False if validation fails
+                    print("Failed 5NF check for attributes:", attrs)
+                    return False, candidate_keys_dict
 
-    return True, candidate_keys_dict  # Return True if all relations are in 5NF
-
+    return True, candidate_keys_dict
 
 def decompose_into_5NF(relation_name, dataframe, candidate_keys):
-    # Function to project dataframe based on given attributes
     def project(df, attributes):
-        return df[list(attributes)].drop_duplicates().reset_index(drop=True)  # Drop duplicates and reset index
+        return df[list(attributes)].drop_duplicates().reset_index(drop=True)
 
-    # Function to check if the decomposition is lossless
     def is_lossless(df, df1, df2):
-        common_columns = set(df1.columns) & set(df2.columns)  # Find common columns between tables
+        common_columns = set(df1.columns) & set(df2.columns)
         if not common_columns:
-            return False  # No common columns means lossless join is not possible
-        joined_df = pd.merge(df1, df2, how='inner', on=list(common_columns))  # Perform inner join
-        return df.equals(joined_df)  # Check if original dataframe equals the joined dataframe
+            return False
+        joined_df = pd.merge(df1, df2, how='inner', on=list(common_columns))
+        return df.equals(joined_df)
 
-    decomposed_rel = [dataframe]  # Start with the original dataframe in a list
+    decomposed_rel = [dataframe]
 
-    # Decompose the relation based on candidate keys
     for key in candidate_keys:
-        new_tables = []  # List to hold new tables after decomposition
+        new_tables = []
         for table in decomposed_rel:
-            if set(key).issubset(set(table.columns)):  # Check if key is in current table columns
-                table1 = project(table, key)  # Create the first table with key attributes
-                remaining_columns = set(table.columns) - set(key)  # Find remaining columns
-                table2 = project(table, remaining_columns | set(key))  # Create second table with remaining attributes
+            if set(key).issubset(set(table.columns)):
+                table1 = project(table, key)
+                remaining_columns = set(table.columns) - set(key)
+                table2 = project(table, remaining_columns | set(key))
 
-                # Check if the decomposition is lossless
                 if is_lossless(table, table1, table2):
-                    new_tables.extend([table1, table2])  # Add both tables if lossless
+                    new_tables.extend([table1, table2])
                 else:
-                    new_tables.append(table)  # Keep the original table if lossless join fails
+                    new_tables.append(table)
             else:
-                new_tables.append(table)  # Keep the original table if key is not present
-        decomposed_rel = new_tables  # Update the list of decomposed relations
+                new_tables.append(table)
+        decomposed_rel = new_tables
 
-    return decomposed_rel  # Return the list of decomposed relations
+    return decomposed_rel
 
 
 def transform_to_5NF(relations, pk, fds):
-    five_relations = {}  # Dictionary to hold transformed 5NF relations
-    fivenfcheck, candidate_keys_dict = validate_5NF(relations)  # Validate for 5NF
+    five_relations = {}
+    fivenfcheck, candidate_keys_dict = validate_5NF(relations)
 
     if fivenfcheck:
-        return relations, fivenfcheck  # Return existing relations if they are in 5NF
+        return relations, fivenfcheck
     else:
         print(f"The relation after transforming into 5NF.\n")
-        for relation_name, relation in relations.items():  # Iterate over relations for transformation
-            candidate_keys = candidate_keys_dict[relation_name]  # Get candidate keys for the relation
-            decomposed_relations = decompose_into_5NF(relation_name, relation, candidate_keys)  # Decompose into 5NF
-            five_relations[relation_name] = decomposed_relations  # Store the decomposed relations
+        for relation_name, relation in relations:
+            candidate_keys = candidate_keys_dict[relation_name]
+            decomposed_relations = decompose_into_5NF(
+                relation_name, relation, candidate_keys)
+            five_relations.append(decomposed_relations)
 
-    return five_relations, fivenfcheck  # Return transformed relations and check status
+    return five_relations, fivenfcheck
