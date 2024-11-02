@@ -1,0 +1,4 @@
+Office -> Department
+Manager -> ManagerEmail
+SSN -> EmployeeID, FirstName, LastName, JobTitle, Manager, ManagerEmail, Department, PhoneNumber, Office
+PhoneNumber -> EmployeeID

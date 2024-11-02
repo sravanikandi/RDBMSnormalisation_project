@@ -1,0 +1,25 @@
+MVDS:
+
+EmployeeID ->> Department
+Manager ->> JobTitle
+Manager ->> Department
+EmployeeID ->> JobTitle
+
+KEYS:
+SSN (unique for each employee)
+Composite Key Option:
+(EmployeeID, JobTitle) could be considered if you want to accommodate for multiple roles per employee.
+
+
+Valid Candidate Keys:
+SSN (unique for each employee)
+(EmployeeID, JobTitle) (to uniquely identify each role for an employee)
+
+
+For (PhoneNumber, EmployeeID): (PhoneNumber)
+For (Manager, ManagerEmail): (Manager)
+For (Office, Department): (Office)
+For (JobTitle, FirstName, LastName, PhoneNumber, Office, SSN, Manager):(SSN)
+
+Candidate Keys for tables:
+{('Office',): [('Office',)], ('Manager',): [('Manager',)], ('PhoneNumber',): [('PhoneNumber',)], ('SSN',): [('SSN',)]}

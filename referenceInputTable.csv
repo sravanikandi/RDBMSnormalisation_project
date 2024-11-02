@@ -1,0 +1,7 @@
+EmployeeID,SSN,FirstName,LastName,JobTitle,Manager,ManagerEmail,Department,PhoneNumber,Office
+201,123-45-6789,Sravani,Kandi,Engineer,Kashif,kashif@techm.com,IT,(555)-123-4567,R1
+201,123-45-6789,Sravani,Kandi,Lead Engineer,Raju,raju@infosys.com,Research,(555)-123-4567,R2
+202,123-45-6700,Sandeep,Kumar,Manager,Kashif,kashif@techm.com,IT,(202) 555-0198,R1
+203,123-45-6701,Rodger,anes,Engineer,Kashif,kashif@techm.com,IT,(415) 555-0147,R2
+204,123-45-6702,Dave,Brown,Engineer,Raju,raju@infosys.com,Design,(702) 555-0116,D1
+205,123-45-6707,Eve,Green,Analyst,Kashif,kashif@techm.com,IT,(617) 555-0132,R1
