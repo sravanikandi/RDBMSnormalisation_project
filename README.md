@@ -21,10 +21,6 @@ The program may process one table at a time for normalization.
 - Fifth Normal Form (5NF): Detailed data instances are necessary to identify join dependencies effectively.
 # Functional Dependencies
 Functional dependencies should be expressed in the format:  X -> Y Where `X` and `Y` are lists of attributes from the schema.
-# Additional Constraints and Assumptions
-- The program does not need to handle "nested relations" for 1NF but must manage multi-valued attributes with non-atomic data.
-- Users can identify attributes with non-atomic data as part of the input.
-
 # Normalization Target
 Users can specify the highest normal form they wish to achieve (1NF, 2NF, 3NF, BCNF, 4NF, or 5NF). The program will ensure that the database meets the criteria for each preceding normal form in sequence.
 # Input Format
