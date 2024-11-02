@@ -170,17 +170,18 @@ def create_tables_for_normalized_relations(relations, fds):
         print(create_query)
 
 table = inputparser(table)
-
-# Normalize to 1NF
+# Normalize to 1NF 
 if step >= 1:
-    result = normalizer.transform_to_1NF(table, pk)  # Call the normalization function
-    normalized_table_1 = result[0]  # Get the normalized table
-    onenfcheck = result[1]  # Get the 1NF check result
+    result = normalizer.transform_to_1NF(table, pk)  # Call the normalization function for 1NF
+    normalized_table_1 = result[0]  # Get the normalized table after applying 1NF
+    onenfcheck = result[1]  # Get the check result for 1NF
 
+    # Check if the table was already in 1NF
     if onenfcheck:
         print("Given input table is already in 1NF.\n")
-        highest_normal_form = max(highest_normal_form, 1)  # Update highest normal form
+        highest_normal_form = max(highest_normal_form, 1)  # Update the highest normal form achieved
 
+    # If this is the step for 1NF, generate the SQL queries
     if step == 1:
         print("Generating output queries for 1NF-->\n")
         generate_1nf_table_sql(pk, normalized_table_1)
@@ -189,79 +190,93 @@ if step >= 1:
 # Normalize to 2NF
 if step >= 2:
     # Normalize to 2NF
-    normalized_result = normalizer.transform_to_2NF(normalized_table_1, pk, fds)
-    normalized_table_2, twonfcheck = normalized_result
+    normalized_result = normalizer.transform_to_2NF(normalized_table_1, pk, fds)  # Transform to 2NF
+    normalized_table_2, twonfcheck = normalized_result  # Get the normalized table and check result
 
+    # Check if the table was already in 2NF
     if twonfcheck:
         print("Given input table is already in 2NF.\n")
         highest_normal_form = max(highest_normal_form, 2)  # Update highest normal form
 
+    # If this is the step for 2NF, generate the SQL queries
     if step == 2:
         print("Generating output queries for 2NF-->\n")
-        create_tables_for_normalized_relations(normalized_table_2, fds)
+        create_tables_for_normalized_relations(normalized_table_2, fds)  # Create tables for the normalized relations
 
 
 # Normalize to 3NF
 if step >= 3:
     # Normalize to 3NF
-    normalized_result = normalizer.transform_to_3NF(normalized_table_2, fds)
-    normalized_table_3, threenfcheck = normalized_result
+    normalized_result = normalizer.transform_to_3NF(normalized_table_2, fds)  # Transform to 3NF
+    normalized_table_3, threenfcheck = normalized_result  # Get the normalized table and check result
 
+    # Check if the table was already in 3NF
     if threenfcheck:
         print("Given input table is already in 3NF.\n")
         highest_normal_form = max(highest_normal_form, 3)  # Update highest normal form
 
+    # If this is the step for 3NF, generate the SQL queries
     if step == 3:
         print("Generating output queries for 3NF-->\n")
-        create_tables_for_normalized_relations(normalized_table_3, fds)
+        create_tables_for_normalized_relations(normalized_table_3, fds)  # Create tables for the normalized relations
 
 
 # Normalize to BCNF
 if step >= 4:
     # Normalize to BCNF
-    normalized_result_bcnf = normalizer.transform_to_BCNF(normalized_table_3, pk, fds)
-    normalized_table_bcnf, bcnfcheck = normalized_result_bcnf
+    normalized_result_bcnf = normalizer.transform_to_BCNF(normalized_table_3, pk, fds)  # Transform to BCNF
+    normalized_table_bcnf, bcnfcheck = normalized_result_bcnf  # Get the normalized table and check result
 
+    # Check if the table was already in BCNF
     if bcnfcheck:
         print("Given input table is already in BCNF.\n")
         highest_normal_form = max(highest_normal_form, 4)  # Update highest normal form
 
+    # If this is the step for BCNF, generate the SQL queries
     if step == 4:
         print("Generating output queries for BCNF-->\n")
-        create_tables_for_normalized_relations(normalized_table_bcnf, fds)
+        create_tables_for_normalized_relations(normalized_table_bcnf, fds)  # Create tables for the normalized relations
    
+
 # Normalize to 4NF
 if step >= 5:
-    normalized_result = normalizer.transform_to_4NF(normalized_table_bcnf, mvds)
-    normalized_table_4nf, fournfcheck = normalized_result
+    normalized_result = normalizer.transform_to_4NF(normalized_table_bcnf, mvds)  # Transform to 4NF
+    normalized_table_4nf, fournfcheck = normalized_result  # Get the normalized table and check result
 
+    # Check if the table was already in 4NF
     if fournfcheck:
         print("Given input table is already in 4NF.\n")
         highest_normal_form = max(highest_normal_form, 5)  # Update highest normal form
 
+    # If this is the step for 4NF, generate the SQL queries
     if step == 5:
         print("Generating output queries for 4NF-->\n")
-        create_tables_for_normalized_relations(normalized_table_4nf, fds)
+        create_tables_for_normalized_relations(normalized_table_4nf, fds)  # Create tables for the normalized relations
+
 
 # Normalize to 5NF
 if step >= 6:
-    normalized_result = normalizer.transform_to_5NF(normalized_table_4nf, pk, fds)
-    normalized_table_5nf, fivenfcheck = normalized_result
+    normalized_result = normalizer.transform_to_5NF(normalized_table_4nf, pk, fds)  # Transform to 5NF
+    normalized_table_5nf, fivenfcheck = normalized_result  # Get the normalized table and check result
 
+    # Check if the table was already in 5NF
     if fivenfcheck:
         print("Given input table is already in 5NF.\n")
         highest_normal_form = max(highest_normal_form, 6)  # Update highest normal form
 
+    # If this is the step for 5NF, generate the SQL queries
     if step == 6:
         print("Generating output queries for 5NF-->\n")
-        create_tables_for_normalized_relations(normalized_table_5nf, fds)
+        create_tables_for_normalized_relations(normalized_table_5nf, fds)  # Create tables for the normalized relations
 
 
 # Output the highest normal form achieved if the user requested it
 if current == 1:
+    # Check if any normalization has been done
     if highest_normal_form == 0:
         print("The input table is still not normalized into any specific normal form.")
     else:
+        # Map the highest normal form number to its name
         normal_forms = {
             1: "1NF",
             2: "2NF",
@@ -270,6 +285,6 @@ if current == 1:
             5: "4NF",
             6: "5NF"
         }
-        print(f"The highest normal form achieved is: {normal_forms[highest_normal_form]}")
+        print(f"The highest normal form achieved is: {normal_forms[highest_normal_form]}")  # Output the highest normal form achieved
 
-print("Normalization process completed.")
+print("Normalization process completed.")  # Indicate that the normalization process is finished
